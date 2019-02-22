@@ -75,7 +75,7 @@ main()
 			EXEC SQL FETCH :my_cursor
 			INTO :my_info INDICATOR :my_info_ind;
 
-			printf("%d: %d\t%s\t",i, my_info.c2, my_info.c5);
+			printf("%d: %d\t%s\t",i, my_info.c2, my_info.c9);
 		}
 
 		EXEC SQL CLOSE :my_cursor;
