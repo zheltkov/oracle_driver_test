@@ -70,10 +70,10 @@ main()
 	{
 		i++;
 		/* Allocate the cursor variable. */
-		printf("allocate cursor");
+		printf("allocate cursor\n");
 		EXEC SQL ALLOCATE :my_cursor;
 
-		printf("execute pl/sql block");
+		printf("execute pl/sql block\n");
 		EXEC SQL EXECUTE
 		begin
 		DBMS_SESSION.SET_IDENTIFIER('xui');
@@ -87,7 +87,7 @@ main()
 		   Note the use of a parallel indicator struct. */
 		for (;;)
 		{
-			printf("fetch cursor");
+			printf("fetch cursor\n");
 			EXEC SQL FETCH :my_cursor
 			INTO :my_info INDICATOR :my_info_ind;
 
@@ -96,12 +96,12 @@ main()
 		}
 
 		/* Close the cursor. */
-		printf("closing cursor");
+		printf("closing cursor\n");
 		EXEC SQL CLOSE :my_cursor;
-		printf("close cursor done");
+		printf("close cursor done\n");
 	}
 
-	printf("finish 100 allocate-execute-fetch-close");
+	printf("finish 100 allocate-execute-fetch-close\n");
 }
 
 void
