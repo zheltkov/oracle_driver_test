@@ -80,7 +80,7 @@ void main(void)
 		EXEC SQL CLOSE :my_cursor;
 		printf("cursor closed\n");
 	}
-	printf("finish %d allocate-execute-fetch-close\n", i);
+	printf("finish %d execute-fetch-close\n", i);
 	exit(0);
 }
 
