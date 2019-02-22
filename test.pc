@@ -66,14 +66,14 @@ main()
 	EXEC ORACLE OPTION (SQLCHECK=SEMANTICS);
 
 	int i = 0;
-	while(i < 1000000)
+	while(i < 100000)
 	{
 		i++;
-		/* Allocate the cursor variable. */
-		printf("allocate cursor\n");
+
+		//printf("allocate cursor\n");
 		EXEC SQL ALLOCATE :my_cursor;
 
-		printf("execute pl/sql block\n");
+		//printf("execute pl/sql block\n");
 		EXEC SQL EXECUTE
 		begin
 		DBMS_SESSION.SET_IDENTIFIER('xui');
@@ -81,27 +81,21 @@ main()
 		end;
 		END-EXEC;
 
-		EXEC SQL WHENEVER NOT FOUND DO break;
-		EXEC SQL WHENEVER SQLERROR DO break;
-		/* Fetch each row in the EMP table into the data struct.
-		   Note the use of a parallel indicator struct. */
 		for (;;)
 		{
-			printf("fetch cursor\n");
+			EXEC SQL WHENEVER NOT FOUND DO break;
+
+			//printf("fetch cursor\n");
 			EXEC SQL FETCH :my_cursor
 			INTO :my_info INDICATOR :my_info_ind;
 
-			printf("%d: %d\t%s\n",i, my_info.c2, my_info.c5);
-			usleep(10000);
+			printf("%d: %d\t%s\t",i, my_info.c2, my_info.c5);
 		}
 
-		/* Close the cursor. */
-		printf("closing cursor\n");
 		EXEC SQL CLOSE :my_cursor;
-		printf("close cursor done\n");
+		printf("cursor closed\n");
 	}
-
-	printf("finish 100 allocate-execute-fetch-close\n");
+	printf("finish %d allocate-execute-fetch-close\n", i);
 }
 
 void
