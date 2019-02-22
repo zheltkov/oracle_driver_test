@@ -71,7 +71,6 @@ main()
 		{
 			EXEC SQL WHENEVER NOT FOUND DO break;
 
-			//printf("fetch cursor\n");
 			EXEC SQL FETCH :my_cursor
 			INTO :my_info INDICATOR :my_info_ind;
 
