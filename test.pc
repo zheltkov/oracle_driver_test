@@ -1,0 +1,121 @@
+/*
+ *  Fetch from the EMP table, using a cursor variable.
+ *  The cursor is opened in the stored PL/SQL procedure
+ *  open_cur, in the EMP_DEMO_PKG package.
+ *
+ *  This package is available on-line in the file
+ *  sample11.sql, in the demo directory.
+ *
+ */
+
+#include <stdio.h>
+#include <sqlca.h>
+
+/* Error handling function. */
+void sql_error();
+
+main()
+{
+	char temp[32];
+
+	EXEC SQL BEGIN DECLARE SECTION;
+	char *username = "TCTDBS";
+	char *password = "TCTDBS";
+	char *uid = "TCTDBS/TCTDBS";
+	char db_string[20] = "ONLINE11g";
+	char db_name[20] = "online4_tst";
+	SQL_CURSOR my_cursor;
+
+	struct
+	{
+		int   c1;
+		int   c2;
+		int   c3;
+		int   c4;
+		char  c5[11];
+		char  c6;
+		char  c7;
+		char  c8[4];
+		char  c9[255];
+		int   c10;
+	} my_info;
+	struct
+	{
+		short  c1_ind;
+		short  c2_ind;
+		short  c3_ind;
+		short  c4_ind;
+		short  c5_ind;
+		short  c6_ind;
+		short  c7_ind;
+		short  c8_ind;
+		short  c9_ind;
+		short  c10_ind;
+	} my_info_ind;
+
+	EXEC SQL END DECLARE SECTION;
+
+	EXEC SQL WHENEVER SQLERROR do sql_error("Oracle error");
+
+	/* give the database connection a unique name */
+	EXEC SQL DECLARE DB_NAME DATABASE;
+
+	/* Connect to Oracle. */
+	EXEC SQL CONNECT :username IDENTIFIED BY :password using :db_string;
+
+	EXEC ORACLE OPTION (SQLCHECK=SEMANTICS);
+
+	int i = 0;
+	while(i < 1000000)
+	{
+		i++;
+		/* Allocate the cursor variable. */
+		EXEC SQL ALLOCATE :my_cursor;
+
+		EXEC SQL EXECUTE
+		begin
+		DBMS_SESSION.SET_IDENTIFIER('xui');
+		dl_params_paymentschemes.get_binbycardno('551960', :my_cursor);
+		end;
+		END-EXEC;
+
+		EXEC SQL WHENEVER NOT FOUND DO break;
+		EXEC SQL WHENEVER SQLERROR DO break;
+		/* Fetch each row in the EMP table into the data struct.
+		   Note the use of a parallel indicator struct. */
+		for (;;)
+		{
+			EXEC SQL FETCH :my_cursor
+			INTO :my_info INDICATOR :my_info_ind;
+
+			printf("%d: %d\t%s\n",i, my_info.c2, my_info.c5);
+			usleep(10000);
+		}
+
+		/* Close the cursor. */
+		EXEC SQL CLOSE :my_cursor;
+	}
+
+	printf("finish 100 allocate-execute-fetch-close");
+}
+
+void
+sql_error(msg)
+char *msg;
+{
+	long clen, fc;
+	char cbuf[255] = {0};
+
+	clen = (long) sizeof (cbuf);
+	sqlgls(cbuf, &clen, &fc);
+
+	printf("\n%s\n", msg);
+	printf("Statement is--\n%s\n", cbuf);
+	printf("Function code is %ld\n\n", fc);
+
+	sqlglm(cbuf, (int *) &clen, (int *) &clen);
+	printf ("\n%.*s\n", clen, cbuf);
+
+	EXEC SQL WHENEVER SQLERROR CONTINUE;
+	EXEC SQL ROLLBACK WORK;
+}
