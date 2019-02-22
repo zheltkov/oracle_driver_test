@@ -4,7 +4,7 @@
 /* Error handling function. */
 void sql_error();
 
-main()
+void main(void)
 {
 	char temp[32];
 
@@ -53,12 +53,12 @@ main()
 
 	EXEC ORACLE OPTION (SQLCHECK=SEMANTICS);
 
+	EXEC SQL ALLOCATE :my_cursor;
+
 	int i = 0;
 	while(i < 100000)
 	{
 		i++;
-
-		EXEC SQL ALLOCATE :my_cursor;
 
 		EXEC SQL EXECUTE
 		begin
@@ -81,6 +81,7 @@ main()
 		printf("cursor closed\n");
 	}
 	printf("finish %d allocate-execute-fetch-close\n", i);
+	exit(0);
 }
 
 void
@@ -102,4 +103,6 @@ char *msg;
 
 	EXEC SQL WHENEVER SQLERROR CONTINUE;
 	EXEC SQL ROLLBACK WORK;
+
+	exit(1);
 }
