@@ -44,13 +44,10 @@ void main(void)
 	} my_info_ind;
 
 	EXEC SQL END DECLARE SECTION;
-
 	EXEC SQL WHENEVER SQLERROR do sql_error("Oracle error");
 
 	EXEC SQL DECLARE DB_NAME DATABASE;
-
 	EXEC SQL CONNECT :username IDENTIFIED BY :password using :db_string;
-
 	EXEC ORACLE OPTION (SQLCHECK=SEMANTICS);
 
 	EXEC SQL ALLOCATE :my_cursor;
