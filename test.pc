@@ -9,11 +9,11 @@ void main(void)
 	char temp[32];
 
 	EXEC SQL BEGIN DECLARE SECTION;
-	char *username = "TCTDBS";
-	char *password = "TCTDBS";
-	char *uid = "TCTDBS/TCTDBS";
-	char db_string[20] = "ONLINE11g";
-	char db_name[20] = "online4_tst";
+	char *username = "username";
+	char *password = "password";
+	char *uid = "username/password";
+	char db_string[20] = "DB_NAME";
+	char db_name[20] = "db_name";
 	SQL_CURSOR my_cursor;
 
 	struct
@@ -50,24 +50,25 @@ void main(void)
 	EXEC SQL CONNECT :username IDENTIFIED BY :password using :db_string;
 	EXEC ORACLE OPTION (SQLCHECK=SEMANTICS);
 
-	EXEC SQL ALLOCATE :my_cursor;
-
 	int i = 0;
 	while(i < 100000)
 	{
 		i++;
 
+		EXEC SQL ALLOCATE :my_cursor;
+
 		EXEC SQL EXECUTE
 		begin
-		DBMS_SESSION.SET_IDENTIFIER('xui');
-		dl_params_paymentschemes.get_binbycardno('551960', :my_cursor);
+		DBMS_SESSION.SET_IDENTIFIER('xxx');
+		get_cursor(:my_cursor);
 		end;
 		END-EXEC;
 
+		EXEC SQL WHENEVER NOT FOUND DO break;
+		EXEC SQL WHENEVER SQLERROR DO break;
+
 		for (;;)
 		{
-			EXEC SQL WHENEVER NOT FOUND DO break;
-
 			EXEC SQL FETCH :my_cursor
 			INTO :my_info INDICATOR :my_info_ind;
 
@@ -75,6 +76,7 @@ void main(void)
 		}
 
 		EXEC SQL CLOSE :my_cursor;
+		EXEC SQL FREE :my_cursor;
 		printf("cursor closed\n");
 	}
 	printf("finish %d execute-fetch-close\n", i);
